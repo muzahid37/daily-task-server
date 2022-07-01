@@ -1,7 +1,7 @@
 const express = require('express');
 const cors=require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT||5000;
 app.use(cors());
@@ -28,25 +28,41 @@ async function run(){
             const result = await taskCollection.insertOne(task);
             res.send(result);
           });
-          app.put('/task', async (req, res) => {
-            const _id = req.params._id;
-            const taskState=await taskCollection.findOne({_id});
-            if(taskState.role==="complited"){
-             const filter = { _id: _id };
+        //   app.put('/task', async (req, res) => {
+        //     const _id = req.params._id;
+        //     const taskState=await taskCollection.findOne({_id});
+        //     if(taskState.role==="complited"){
+        //      const filter = { _id: _id };
              
-             const updateDoc = {
-               $set:{role:'complited'},
-             };
-            const result = await usersCollection.updateOne(filter, updateDoc);
+        //      const updateDoc = {
+        //        $set:{role:'complited'},
+        //      };
+        //     const result = await usersCollection.updateOne(filter, updateDoc);
            
-            res.send(result);
-            }
-           
-      
+        //     res.send(result);
+        //     }
             
-            
-           
+        //   });
+        app.get("/task/:id", async (req, res) => {
+            const id = req.params.id;
+            // console.log(id);
+            const query = { _id: ObjectId(id) };
+            const purchase = await taskCollection.findOne(query);
+            res.send(purchase);
           });
+       
+        app.patch("/task/:id",async (res,req)=>{
+          try{
+            const id=req.params._id
+            console.log(id);
+            const edit=req.body
+            const result=await taskCollection.findOneAndUpdate(id,edit,);
+            res.result(result);
+          }catch(error){
+            console.log(error.message)
+          }
+           
+        })
     }
     finally{
 
